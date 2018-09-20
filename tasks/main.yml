@@ -1,0 +1,175 @@
+---
+- name: Install base packages
+  apt:
+    update_cache: true
+    pkg: '{{ item }}'
+  with_items: '{{ packages }}'
+  notify: apt clean
+
+- name: Update Packages
+  apt:
+    upgrade: safe
+    force_apt_get: true
+  notify: apt clean
+
+- name: Make sure ssh for root uses pubkey only
+  lineinfile:
+    dest: /etc/ssh/sshd_config
+    regexp: "^PermitRootLogin"
+    line: "PermitRootLogin without-password"
+  notify: Restart ssh
+  tags:
+    - ssh
+
+- name: Copy ssh system keys
+  authorized_key:
+    user: root
+    key: "{{ item }}"
+  with_items: "{{ ssh_extra_keys }}"
+  tags:
+    - ssh
+
+- name: Add users
+  user:
+    name: "{{ item.name }}"
+    comment: "{{ item.comment }}"
+    shell: "{{ item.shell | default('/bin/bash') }}"
+    groups: "{{ item.groups }}"
+    append: true
+  with_items: "{{ users }}"
+
+- name: Copy vimrc
+  copy:
+    src: vimrc.local
+    dest: /etc/vim/vimrc.local
+    owner: root
+    group: root
+    mode: 0444
+  tags:
+    - vim
+
+- name: Copy profile defaults
+  copy: src=profile.sh dest=/etc/profile.d/ owner=root group=root
+  tags:
+    - bashrc
+
+- name: Create locales
+  lineinfile:
+    dest: /etc/locale.gen
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+    state: "{{ item.state }}"
+  with_items:
+    - { regexp: '^#? ?en_GB.UTF-8 UTF-8', line: 'en_GB.UTF-8 UTF-8', state: present }
+    - { regexp: '^#? ?en_US.UTF-8 UTF-8', line: 'en_US.UTF-8 UTF-8', state: present }
+  notify: Refresh locales
+
+
+- name: Add source profile to global bashrc
+  lineinfile:
+    path: /etc/bash.bashrc
+    regexp: '^source /etc/profile\.d/profile\.sh'
+    line: "source /etc/profile.d/profile.sh"
+    insertafter: EOF
+  tags:
+    - bashrc
+
+- name: Delete emerg logging to all consoles
+  lineinfile:
+    dest: /etc/rsyslog.conf
+    regexp: '^[*]\.emerg'
+    state: absent
+  tags:
+    - syslog
+
+- name: Delete emerg logging to all consoles journald
+  lineinfile:
+    dest: /etc/systemd/journald.conf
+    regexp: '^ForwardToWall=no'
+    line: 'ForwardToWall=no'
+  notify: Restart journald
+  tags:
+    - syslog
+
+- name: Configure remote rsyslog
+  template:
+    src: remotelog.conf.j2
+    dest: /etc/rsyslog.d/50-remote_tls.conf
+    mode: 0444
+  when: rsyslog_remote_tls is undefined and rsyslog_remote_host is defined
+  tags:
+    - rsyslog
+
+- name: Ensure remote rsyslog when TLS is enabled
+  template:
+    src: remotelog.conf.j2
+    dest: /etc/rsyslog.d/50-remote_tls.conf
+    mode: 0444
+  when: rsyslog_remote_tls is defined and rsyslog_remote_host is defined
+  tags:
+    - rsyslog
+
+- name: Update resolv.conf for non local network
+  template:
+    src: resolv.conf.j2
+    dest: /etc/resolv.conf
+    mode: 0444
+  when: inventory_hostname not in groups.local
+  tags:
+    - resolv
+
+- name: Add sudo nopasswd users
+  copy:
+    dest: /etc/sudoers.d/{{ item }}
+    content: "{{ item }} ALL=NOPASSWD: ALL"
+  with_items: "{{ sudo_users_nopasswd }}"
+  tags:
+    - resolv
+
+- name: Make sure dhcpd doesn't override resolvconf for virtual boxes
+  copy:
+    src: nodnsupdate
+    dest: /etc/dhcp/dhclient-enter-hooks.d/nodnsupdate
+    mode: 0755
+  when: inventory_hostname in groups.openstack
+  tags:
+    - resolv
+    - resolvdhcp
+
+- name: Set timezone
+  copy:
+    content: "Europe/Stockholm\n"
+    dest: /etc/timezone
+    owner: root
+    group: root
+    mode: 0444
+  notify: Re-configure tzdata
+  tags:
+    - tz
+
+- name: Link zoneinfo to localtime
+  file:
+    state: link
+    src: /usr/share/zoneinfo/Europe/Stockholm
+    path: /etc/localtime
+    force: true
+  notify: Re-configure tzdata
+  tags:
+    - tz
+
+- name: Add our CA certificate
+  copy:
+    src: ca.crt
+    dest: /usr/local/share/ca-certificates/
+  notify: Re-generate certificate
+  when: ca_certificate is defined
+  tags:
+    - cert
+
+- include_tasks: openstack.yml
+  when: inventory_hostname in groups.openstack
+  tags:
+    - openstack
+
+- include_tasks: iptables.yml
+  when: inventory_hostname not in groups.openstack and skip_iptables is not defined

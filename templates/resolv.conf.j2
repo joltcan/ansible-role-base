@@ -1,0 +1,10 @@
+#
+## {{ ansible_managed }}
+##
+{% if resolver_search is defined %}
+search {{ resolver_search }}
+{% endif -%}
+
+{% for nameserver in nameservers %}
+nameserver {{ nameserver }}
+{% endfor %}

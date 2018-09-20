@@ -1,0 +1,69 @@
+---
+
+# This is what I pre-install on all hosts.
+packages:
+  - apt
+  - apt-transport-https
+  - apt-utils
+  - bash-completion
+  - bind9-host
+  - bzip2
+  - curl
+  - dnsutils
+  - dbus
+  - git
+  - gzip
+  - htop
+  - iotop
+  - iftop
+  - iptables
+  - iputils-ping
+  - less
+  - logrotate
+  - mosh
+  - net-tools
+  - rsync
+  - rsyslog
+  - rsyslog-gnutls
+  - ssh
+  - sudo
+  - screen
+  - tmux
+  - tree
+  - traceroute
+  - unzip
+  - vim
+  - wget
+
+users: []
+#  - name: 'fredrik'
+#    pubkey: 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMtQg4SiEqYMUzOKMVfCWLvHq010obqaz9120WAYnw4p f@mekk.com'
+#    comment: 'Fredrik Lundhag'
+#    groups: 'adm'
+#    ssh_key_in_root: yes
+
+ssh_extra_keys: []
+#  - ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAwmzC4LDrXQJpjhlJWqkxZLSnnEM5R4x76KDTCoBUimv/0A9NLVRa91FGrqpydkjOL9cKzeYp9g9aZY0XNQOEPoo+x/DDYXaX01gNynNAIHy5yzzQPMKUahvEfPFW1Gcc0Cld7f1gY5muQfWt1Y1n62PxCC7yngw2TW3Cbzeo7O9Xzu4TibwwDNIyeAGTqAZ9X9RjWtjSj8igL26dzdK0WARdjf4PQ46Wu+wJtSmtgtmMyF4lhC3OGDXTRS9Z8GEHW14k2euE6f/ebF4zIRZrks8/QECiXQ0q1yMurf6pzAraokHuClD/3hkqec4YIjQsbpwN5qxzmjgniyaIhmA0kQ== root@metatron
+
+sudo_users_nopasswd: []
+#  - fredrik
+
+# Define this if you have a local CA and want your cert installed
+# ca_certificate:
+
+## I use the CloudFlare distributed resolver
+nameservers:
+  - 1.1.1.1
+  - 1.0.0.1
+
+## If you use a custom search domain, set it here
+# resolver_search:
+
+## Set this to use remote syslog server
+# rsyslog_remote_host: <some host>
+
+# set this to override the default (514)
+# rsyslog_remote_port: 514
+
+# Set this to add the remote tls syslog config.
+# rsyslog_remote_tls: true

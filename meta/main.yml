@@ -1,0 +1,18 @@
+---
+galaxy_info:
+  author: Fredrik Lundhag
+  description: Base role to bootstrap hosts with my local customizations
+
+  license: BSD
+
+  min_ansible_version: 2.3
+
+  github_branch: stable
+
+  platforms:
+    - name: Debian
+      versions:
+        - 8
+        - 9
+
+  galaxy_tags: []

@@ -1,0 +1,6 @@
+---
+- name: Dont overwrite hosts files at boot
+  lineinfile:
+    path: /etc/cloud/cloud.cfg
+    regexp: '^manage_etc_hosts: true'
+    line: 'manage_etc_hosts: false'

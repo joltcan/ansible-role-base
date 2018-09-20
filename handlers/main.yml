@@ -1,0 +1,39 @@
+---
+- name: Restart ssh
+  service:
+    name: ssh
+    state: restarted
+    enabled: true
+
+- name: Apply iptables
+  shell: iptables-restore < /etc/network/ip4tables
+  args:
+    warn: False
+
+- name: Re-generate certificate
+  command: dpkg-reconfigure -f noninteractive ca-certificates
+
+- name: Restart journald
+  service:
+    name: systemd-journald
+    state: restarted
+
+- name: Restart rsyslog
+  service:
+    name: rsyslog
+    state: restarted
+    enabled: true
+
+- name: Re-configure tzdata
+  command: dpkg-reconfigure -f noninteractive tzdata
+
+- name: apt clean
+  command: apt-get clean
+  args:
+    warn: False
+
+- name: Refresh locales
+  command: "{{ item }}"
+  with_items:
+    - dpkg-reconfigure locales -f noninteractive
+    - /usr/sbin/locale-gen

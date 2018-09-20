@@ -1,0 +1,24 @@
+---
+
+- name: Check if we have the iptables default file
+  stat:
+    path: /etc/network/ip4tables
+  register: ipt
+
+- name: Install iptables default conf file
+  template:
+    src: iptables-defaults.j2
+    dest: /etc/network/ip4tables
+    owner: root
+    group: root
+    force: false    # dont overwrite
+  notify: Apply iptables
+  when: not ipt.stat.exists
+
+- name: Add iptables-restore
+  copy:
+    dest: /etc/network/if-pre-up.d/iptables-restore
+    content: '#!/bin/sh\niptables-restore < /etc/network/ip4tables\n'
+    mode: 0555
+  notify: Apply iptables
+  when: not ipt.stat.exists

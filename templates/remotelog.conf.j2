@@ -1,0 +1,14 @@
+#
+## {{ ansible_managed }}
+#
+{% if rsyslog_remote_tls is defined %}
+# Encrypt remote logging, use TCP
+$DefaultNetstreamDriverCAFile {{ ca_certificate }}
+$DefaultNetstreamDriver gtls # use gtls netstream driver
+$ActionSendStreamDriverMode 1 # require TLS
+$ActionSendStreamDriverAuthMode anon
+*.* @@(o){{ rsyslog_remote_host }}:{{ rsyslog_remote_port }}
+{% else %}
+# Remote log via syslog
+*.* @{{ rsyslog_remote_host }}:{{ rsyslog_remote_port | default('514') }}
+{% endif %}
