@@ -20,6 +20,3 @@ alias l='ls -lah'
 alias rp='rsync -avP'
 alias vi='vim'
 alias upgrade='apt update && apt -y upgrade'
-
-# auto tmux
-if [[ $TERM != screen* ]]; then tmux new ; logout ; fi
