@@ -1,0 +1,7 @@
+*.pyc
+.Trashes
+*.tmp
+.ansible
+*.swp
+.DS_Store
+test.yml
