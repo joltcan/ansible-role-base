@@ -18,7 +18,7 @@
 - name: Add iptables-restore
   copy:
     dest: /etc/network/if-pre-up.d/iptables-restore
-    content: '#!/bin/sh\niptables-restore < /etc/network/ip4tables\n'
+    content: "#!/bin/sh\niptables-restore < /etc/network/ip4tables\n"
     mode: 0555
   notify: Apply iptables
   when: not ipt.stat.exists
