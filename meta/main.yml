@@ -1,18 +1,14 @@
 ---
 galaxy_info:
+  role_name: base
   author: Fredrik Lundhag
   description: Base role to bootstrap hosts with my local customizations
-
   license: BSD
-
-  min_ansible_version: 2.3
-
-  github_branch: stable
-
+  min_ansible_version: 2.5
   platforms:
     - name: Debian
-      versions:
-        - 8
-        - 9
-
-  galaxy_tags: []
+    - name: Ubuntu  
+  galaxy_tags:
+    - debian
+    - base
+    - setup
