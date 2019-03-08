@@ -2,8 +2,7 @@
 - name: Install base packages
   apt:
     update_cache: true
-    pkg: '{{ item }}'
-  with_items: '{{ packages }}'
+    name: '{{ packages }}'
   notify: apt clean
 
 - name: Update Packages
