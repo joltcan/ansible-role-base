@@ -18,7 +18,7 @@
     line: "PermitRootLogin without-password"
   notify: Restart ssh
   tags:
-    - ssh
+    - sshd
 
 - name: Copy ssh system keys
   authorized_key:
