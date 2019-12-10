@@ -27,6 +27,9 @@
 - name: Re-configure tzdata
   command: dpkg-reconfigure -f noninteractive tzdata
 
+- name: Apply nftables
+  command: /usr/sbin/nft -f /etc/network/firewall.nft
+
 - name: apt clean
   command: apt-get clean
   args:

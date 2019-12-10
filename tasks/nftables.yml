@@ -1,0 +1,27 @@
+---
+- name: Install nftables
+  apt:
+    name: nftables
+
+- name: Check if we have the nftables default file
+  stat:
+    path: /etc/network/nftables.conf
+  register: nft
+
+- name: Install nftables default conf file
+  copy:
+    src: nftables.conf
+    dest: /etc/network/nftables.conf
+    owner: root
+    group: root
+    mode: 0755
+  notify: Apply nftables
+  when: not nft.stat.exists
+
+- name: Add nftables-apply
+  copy:
+    dest: /etc/network/if-up.d/nftables-apply
+    content: "#!/bin/sh\n/usr/sbin/nft -f /etc/network/nftables.conf\n\nexit 0\n"
+    mode: 0755
+  when: not nft.stat.exists
+
