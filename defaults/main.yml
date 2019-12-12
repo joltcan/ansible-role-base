@@ -20,6 +20,7 @@ packages:
   - iputils-ping
   - less
   - logrotate
+  - lz4
   - mosh
   - net-tools
   - rsync
